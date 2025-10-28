@@ -28,7 +28,7 @@ do
     # this proc will have the container id in the cmdline
     # grep the NULL-separated cmdline for the -id param, and include next param as context,
     # then cut out only the second param
-    CONTAINER_ID="`grep -z '^-id$' -A 1 /proc/3817/cmdline | cut -sf 2 -d ''`"
+    CONTAINER_ID="`grep -z '^-id$' -A 1 "/proc/${PID}/cmdline" | cut -sf 2 -d ''`"
     if [[ -z "$CONTAINER_ID" ]]
     then
       echo "Failed to extract container ID from containerd-shim PID $PID" >&2
