@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# This script is part of the Solvro/devops-utils project, licensed under the MIT license:
+# https://github.com/Solvro/devops-utils
+#
+# Copyright (C) 2025 mini_bomba
+import hashlib
+import pathlib
+import sys
+
+if len(sys.argv) < 2:
+    print("Usage: procscan <path to sample executable>", file=sys.stderr)
+    exit(1)
+
+try:
+    with open(sys.argv[1], "rb") as f:
+        sample_hash = hashlib.file_digest(f, "sha256").hexdigest()
+except OSError as e:
+    print(f"Failed to read the sample executable: {e}", file=sys.stderr)
+    exit(1)
+
+# now scan the existing processes
+for proc_dir in pathlib.Path("/proc").iterdir():
+    if not (proc_dir.name.isdigit() and proc_dir.is_dir()):
+        continue
+
+    # check the cmdline file - if empty = kworker
+    try:
+        if len((proc_dir / "cmdline").read_bytes()) == 0:
+            continue
+    except OSError as e:
+        print(f"Failed to read the cmdline of PID {proc_dir.name}: {e}", file=sys.stderr)
+        continue
+
+    try:
+        with (proc_dir / "exe").open("rb") as f:
+            proc_hash = hashlib.file_digest(f, "sha256").hexdigest()
+    except OSError as e:
+        print(f"Failed to read the executable of PID {proc_dir.name}: {e}", file=sys.stderr)
+        continue
+
+    if proc_hash == sample_hash:
+        print(f"PID {proc_dir.name} matched the sample executable!")

@@ -15,6 +15,7 @@ such as quickly deciding who to blame for an incident by process ID
 | script name/file                | documentation                          |
 | ------------------------------- | -------------------------------------- |
 | [inspect-pid](/bin/inspect-pid) | [inspect-pid.md](/docs/inspect-pid.md) |
+| [procscan](/bin/procscan)       | [procscan.md](/docs/procscan.md)       |
 
 ## license
 
