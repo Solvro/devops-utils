@@ -7,8 +7,19 @@ import hashlib
 import pathlib
 import re
 import sys
+from io import BufferedIOBase
 
 HASH_REGEX = re.compile(r"^[0-9a-f]{64}$", re.IGNORECASE)
+
+
+def hash_file(file: BufferedIOBase) -> str:
+    if sys.version_info.major >= 3 and sys.version_info.minor >= 11:
+        return hashlib.file_digest(file, "sha256").hexdigest()
+    hasher = hashlib.sha256()
+    while (data := file.read(1024)) != b"":
+        hasher.update(data)
+    return hasher.hexdigest()
+
 
 if len(sys.argv) < 2:
     print("Usage: procscan <path to sample executable or hex sha256 hash of the sample>", file=sys.stderr)
@@ -19,7 +30,7 @@ if HASH_REGEX.match(sys.argv[1]) is not None:
 else:
     try:
         with open(sys.argv[1], "rb") as f:
-            sample_hash = hashlib.file_digest(f, "sha256").hexdigest()
+            sample_hash = hash_file(f)
     except OSError as e:
         print(f"Failed to read the sample executable: {e}", file=sys.stderr)
         exit(1)
@@ -39,7 +50,7 @@ for proc_dir in pathlib.Path("/proc").iterdir():
 
     try:
         with (proc_dir / "exe").open("rb") as f:
-            proc_hash = hashlib.file_digest(f, "sha256").hexdigest()
+            proc_hash = hash_file(f)
     except OSError as e:
         print(f"Failed to read the executable of PID {proc_dir.name}: {e}", file=sys.stderr)
         continue
