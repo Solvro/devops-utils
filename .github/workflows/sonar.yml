@@ -30,3 +30,5 @@ jobs:
             -Dsonar.projectKey=Solvro_devops-utils_9dffb7f7-87e9-43df-9b03-ec0e8d0dcb76
             -Dsonar.sources=.
             -Dsonar.exclusions=**/build/**,**/dist/**,**/tests/**,**/.terraform/**,**/target/**
+            -Dsonar.sh.file.suffixes=.sh,inspect-pid
+            -Dsonar.python.file.suffixes=.py,procscan
